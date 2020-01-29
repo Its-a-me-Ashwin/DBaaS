@@ -133,9 +133,12 @@ def schedule_ride():
 @app.route("/api/v1/db/read",methods=["POST"])
 def ReadFromDB():
     data = request.get_json()
-    collection = data["table"]
-    columns = data["columns"]
-    where = data["where"]
+    try:
+        collection = data["table"]
+        columns = data["columns"]
+        where = data["where"]
+    except KeyError:
+        return jsonify(),404
     res = list()
     res_final = list()
     ret = None
@@ -152,13 +155,13 @@ def ReadFromDB():
                 res.append(result[i])
             res_final.append(res)
     except Exception as e:
-        if (e == 'key_error' ):
+        if e == 'KeyError':
             return jsonify(),404
         return jsonify(),500
     return jsonify(res_final),200
 
 
-
+# api 8
 @app.route("/api/v1/db/write",methods=["POST"])
 def WriteToDB():
     data = request.get_json()
@@ -167,7 +170,7 @@ def WriteToDB():
         if collection == "usersDB":
             userDB.insert_one({data["column"]:data["insert"]})
         elif collection == "ridesDB":
-            userDB.insert_one({data["column"]:data["insert"]})
+            ridesDB.insert_one({data["column"]:data["insert"]})
         else:
             return jsonify(),404
     except :
