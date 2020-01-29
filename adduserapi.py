@@ -14,6 +14,15 @@ mydb = myclient["RideShare"]
 #create/access a table (called a collection in mongodb) called UserData: db is created if it does not exist beforehand
 usercol = mydb["UserData"]
 ridescol = mydb["Rides"]
+placecol = mydb["PlaceName"]
+
+#Just for testing
+places = [
+        {"name":"Sarjapur"},
+        {"name":"Whitefield"}
+        ]
+
+placecol.insert_many(places)
 
 #init flask
 app = Flask(__name__)
@@ -57,6 +66,28 @@ def DeleteUser(user) :
         abort(400)
 
     return jsonify({}),200
+
+#Api 3
+@app.route("/api/v1/rides",methods=["POST"])
+def schedule_ride():
+	#access book name sent as JSON object 
+	#in POST request body
+    x = request.get_json()
+    uname=x["created_by"]
+    time=x["timestamp"]
+    sou=x["source"]
+    dest=x["destination"]
+    myquery = { "name": uname }
+    myquery1 = { "name":sou}
+    myquery2 = {"name":dest}
+    #mydoc = usercol.find(myquery)
+    if(usercol.find(myquery) is not None and  placecol.find(myquery1)is not None and placecol.find(myquery2) is not None and sou!=dest):
+        sched.insert_one(x)
+        return jsonify(" yduwq"),200
+    else:
+        abort(400)
+    #return "abc"
+
 
 #api for returning all available rides API 4
 # still have to check if username exists
