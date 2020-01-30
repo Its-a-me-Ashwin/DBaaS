@@ -24,7 +24,12 @@ userDB.insert_one({"name1" : "abcde"})
 userDB.insert_one({"name2" : "abcdef"})
 userDB.insert_one({"bois": "pass"})
 
-rideDB.insert_one({"ride_id":str(random.getrandbits(256)),"source":"C","destination":"A","destination":"A","timestamp":"2019","createdby":"name1","users":["A","name"]})
+rideDB.insert_one({"ride_id":str(random.getrandbits(256)),
+                   "source":"C",
+                   "destination":"A",
+                   "timestamp":"2019",
+                   "createdby":"name1",
+                   "users":["A","name"]})
 
 
 app = Flask(__name__)
@@ -43,7 +48,13 @@ hex_digits = set("0123456789abcdef")
 
 
 
-# 1 Add user
+# api 1
+'''
+{
+    "username" : "a",
+    "password" : "1234567890abcdef"
+}
+'''
 @app.route("/api/v1/users",methods=["PUT"])
 def AddUser():
     data = request.get_json()
@@ -76,6 +87,8 @@ def AddUser():
         return jsonify(),500
 
 
+    
+
 
 # 2 Remove User
 @app.route("/api/v1/users/<username>",methods = ["DELETE"])
@@ -104,6 +117,8 @@ def join_route (rideId):
     return jsonify(),200
 
 
+#user = ["A","B"]
+'''
 
 
 myride = pymongo.MongoClient("mongodb://localhost:27017/")
@@ -127,14 +142,16 @@ places = [
 
 usercol.insert_many(unames)
 placecol.insert_many(places)
-#user = ["A","B"]
-'''
+
 catalog={}
 catalog["book1"]=5
 catalog["book2"]=4
 '''
 
-
+#api 4
+'''
+input = /api/v1/rides?source=C&destination=A 
+'''
 @app.route("/api/v1/rides",methods=["GET"])
 def findRides():
     src = request.args.get("source")
@@ -142,12 +159,18 @@ def findRides():
     #print(src,dist)
     data = {
             "table" : "rideDB",
-            "columns" : ["_id","username","timestamp"],
-            "where" : ["source="+src,"destination="+dist]}
+            "columns" : ["ride_id","createdby","timestamp",],
+            "where" : ["source="+src,"destination="+dist]
+            }
     print("DATA...",data)
-    ret = requests.post("127.0.0.1:5000/api/v1/db/read",data = data)
+    ret = requests.post("http://127.0.0.1:5000/api/v1/db/read",json = data)
     if ret.status_code == 200:
-        return jsonify(),200
+        print(ret.text)
+        return jsonify(ret.text),200
+    elif ret.status_code == 400:
+        return jsonify({"error":"bad request"}),400
+    elif ret.status_code == 204:
+        return jsonify(),204
     return jsonify(),500
 
 
@@ -209,7 +232,7 @@ def ReadFromDB():
         result = list()
         for ret in query_result:
             for key in columns:
-                result.append(ret[key])
+                result.append((key,ret[key]))
     except KeyError:
         return jsonify({"eror":"bad request (Column)"}),400
     return jsonify(result),200
