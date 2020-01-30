@@ -10,14 +10,17 @@ from datetime import datetime
 import pandas as pd
 import sys
 import pymongo
+import requests
 
 myclient = pymongo.MongoClient("mongodb://localhost:27017/")
 mydb = myclient["mydatabase"]
 userDB = mydb["users"]
-ridesDB = mydb["rides"]
+rideDB = mydb["rides"]
 #import mysql.connector
 
-
+userDB.insert_one({"name" : "abcd"})
+userDB.insert_one({"name" : "abcde"})
+userDB.insert_one({"name" : "abcdef"})
 
 app = Flask(__name__)
 
@@ -108,6 +111,28 @@ catalog["book1"]=5
 catalog["book2"]=4
 '''
 
+
+@app.route("/api/v1/rides",methods=["GET"])
+def newRides():
+    src = request.args.get("source")
+    dist = request.args.get("destination")
+    
+    print(src,dist)
+    
+    data1 = {
+	"table" : "usersDB",
+	"columns" : "name",
+	"where" : "name=1234"
+            }
+    r = requests.post("http://127.0.0.1:5000/api/v1/db/read",json = data1)
+    for i in r:
+        print("FOUND",i)
+    return jsonify(),200
+
+
+
+
+
 @app.route("/api/v1/rides",methods=["POST"])
 def schedule_ride():
 	#access book name sent as JSON object 
@@ -130,35 +155,46 @@ def schedule_ride():
   
 
 # api9      
+'''
+input {
+       "table" : "table name",
+       "columns" : ["col1",col2],
+       "where" : ["col=val","col=val"]
+}
+'''
 @app.route("/api/v1/db/read",methods=["POST"])
 def ReadFromDB():
     data = request.get_json()
-    try:
-        collection = data["table"]
-        columns = data["columns"]
-        where = data["where"]
-    except KeyError:
-        return jsonify(),404
-    res = list()
-    res_final = list()
-    ret = None
-    if (collection == "usersDB"):
-        ret = userDB.find({where.split('=')[0] : where.split('=')[1]})
-    elif (collection == "ridesDB"):
-        ret = ridesDB.find({where.split('=')[0] : where.split('=')[1]})
+    collection = data["table"]
+    columns = data["columns"]
+    where = data["where"]
+    query = dict()
+    for q in where:
+        query[q.split('=')[0]] = q.split('=')[1]
+    query_result = None
+    if collection == "userDB":
+        query_result = userDB.find(query)
+    elif collection == "rideDB":
+        query_result = rideDB.find(query)
     else:
-        return jsonify(),400
-    print(columns,ret[0])
+        return jsonify({"eror":"bad request (Table not found)"}),400
+    ### check if NULL is returnned
+    #print(query_result[0])
     try:
-        for result in ret:
-            for i in columns:
-                res.append(result[i])
-            res_final.append(res)
-    except Exception as e:
-        if e == 'KeyError':
-            return jsonify(),404
-        return jsonify(),500
-    return jsonify(res_final),200
+        print("Check",query_result[0])
+    except IndexError:
+        return jsonify({"error" : "no data sent"}),204
+    try:
+        result = list()
+        for ret in query_result:
+            for key in columns:
+                result.append(ret[key])
+    except KeyError:
+        return jsonify({"eror":"bad request (Column)"}),400
+    return jsonify(result),200
+
+
+
 
 
 # api 8
@@ -167,10 +203,10 @@ def WriteToDB():
     data = request.get_json()
     collection = data["table"]
     try:
-        if collection == "usersDB":
+        if collection == "userDB":
             userDB.insert_one({data["column"]:data["insert"]})
         elif collection == "ridesDB":
-            ridesDB.insert_one({data["column"]:data["insert"]})
+            rideDB.insert_one({data["column"]:data["insert"]})
         else:
             return jsonify(),404
     except :
