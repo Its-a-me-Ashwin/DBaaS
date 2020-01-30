@@ -1,7 +1,7 @@
 from flask import Flask, render_template,jsonify,request,abort
 import string
 import pymongo
-
+import requests
 from bson import json_util, ObjectId
 import json
 
@@ -12,17 +12,19 @@ myclient = pymongo.MongoClient("mongodb://localhost:27017/")
 mydb = myclient["RideShare"]
 
 #create/access a table (called a collection in mongodb) called UserData: db is created if it does not exist beforehand
-usercol = mydb["UserData"]
-ridescol = mydb["Rides"]
-placecol = mydb["PlaceName"]
+#usercol = mydb["UserData"]
+#ridescol = mydb["Rides"]
+#placecol = mydb["PlaceName"]
 
 #Just for testing
+'''
 places = [
         {"name":"Sarjapur"},
         {"name":"Whitefield"}
         ]
+'''
 
-placecol.insert_many(places)
+#placecol.insert_many(places)
 
 #init flask
 app = Flask(__name__)
@@ -36,22 +38,30 @@ def AddUser():
     data = request.get_json()
     username = data["username"]
     password = str(data["password"]).lower()
-
+    l = []
+    l.append(username)
+    l.append(password)
+    #cnames = ["username","password"]
     if len(password)!=40:
         print("Password Not 40 characters")
         abort(400)
     for c in password :
         if c not in hex_digits :
             print("Password not in hexadecimal")
-            abort(400)
-    try:
-        usercol.insert_one(data)
-    except :
-        print("Duplicate Error")
-        abort(400)
-    return jsonify({}),201
+            abort(400) 
+    data1 = {"table":"RideShare","column":"UserData","insert":data}
+    #print(type(jsonify(data1)))
+    #return jsonify({}),200
+    r = requests.post("http://127.0.0.1:5000/api/v1/db/write",json = data1)
+    print(r)
+    if(r.text=='OK'):
+        return jsonify({}),200
+    else:
+        return jsonify({}),400
+        
 
 #API: 2, api for deleting a given username and password tuple in the database
+'''
 @app.route("/api/v1/users/<user>",methods=["DELETE"])
 def DeleteUser(user) :
     myquery = { "username": user }
@@ -119,6 +129,15 @@ def ListDetails(rideId):
     if mydoc.count() == 0:
         abort(400)
     return json_util.dumps(mydoc),200
+'''
+@app.route("/api/v1/db/write",methods=["POST"])
+def WriteToDB():
+    data = request.get_json()
+    db = myclient[data["table"]]
+    db1 = db[data["column"]]
+    entry = data["insert"]
+    db1.insert_one(entry)
+    return 'OK'
 
 
 if __name__ == '__main__':
