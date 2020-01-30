@@ -60,10 +60,21 @@ def AddUser():
     print(data)
     ret = requests.post("http://127.0.0.1:5000/api/v1/db/read",json = data)
     print(ret.status_code)
-    if ret.status_code != 200:
+    if ret.status_code == 204:
+        data_part2 = {
+                "table" : "userDB",
+                "data" : {"username":username,"password":password}
+                }
+        ret_part2 = requests.post("http://127.0.0.1:5000/api/v1/db/write",json = data_part2)
+        if ret_part2.status_code == 200:    return jsonify({"correctly":"done"}),200
+        else : return jsonify({"error" : "wrting probs"}),404
+    elif ret.status_code == 400:
+        return jsonify({"eror":"bad request (Table not found)"}),400
+    elif ret.status_code == 200:
+        return jsonify({"error" : "data alredy present"}),200    
+    else:
         return jsonify(),500
-    
-    return jsonify(),200
+
 
 
 # 2 Remove User
@@ -193,7 +204,7 @@ def ReadFromDB():
     try:
         print("Check",query_result[0])
     except IndexError:
-        return jsonify({"error" : "no data sent"}),204
+        return jsonify({"error" : "no data found"}),204
     try:
         result = list()
         for ret in query_result:
