@@ -1,7 +1,8 @@
-# Le Bipis
+# Kawaii neko
 
 
 ## TO DO
-
-* Get error codes for API 1 tested
-* Start AWS
+* Atul's MOM
+* Finish linking APIS
+* TEST ALLL
+* Start AWS 
