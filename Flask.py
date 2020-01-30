@@ -10,6 +10,7 @@ from datetime import datetime
 import pandas as pd
 import sys
 import pymongo
+import random
 import requests
 
 myclient = pymongo.MongoClient("mongodb://localhost:27017/")
@@ -19,8 +20,12 @@ rideDB = mydb["rides"]
 #import mysql.connector
 
 userDB.insert_one({"name" : "abcd"})
-userDB.insert_one({"name" : "abcde"})
-userDB.insert_one({"name" : "abcdef"})
+userDB.insert_one({"name1" : "abcde"})
+userDB.insert_one({"name2" : "abcdef"})
+userDB.insert_one({"bois": "pass"})
+
+rideDB.insert_one({"ride_id":str(random.getrandbits(256)),"source":"C","destination":"A","destination":"A","timestamp":"2019","createdby":"name1","users":["A","name"]})
+
 
 app = Flask(__name__)
 
@@ -44,14 +49,21 @@ def AddUser():
     data = request.get_json()
     username = data["username"]
     password = str(data["password"]).lower()
-    print(data)
-    if (username in Users.keys()) or len(password)!=40:
-        return jsonify(),400
     for c in password :
         if c not in hex_digits :
             abort(400)
-    Users[username] = password
-    return Users,201
+    data = {
+            "table" : "userDB",
+            "columns" : ["username"],
+            "where" : ["username="+str(username)]
+            }
+    print(data)
+    ret = requests.post("http://127.0.0.1:5000/api/v1/db/read",json = data)
+    print(ret.status_code)
+    if ret.status_code != 200:
+        return jsonify(),500
+    
+    return jsonify(),200
 
 
 # 2 Remove User
@@ -113,22 +125,19 @@ catalog["book2"]=4
 
 
 @app.route("/api/v1/rides",methods=["GET"])
-def newRides():
+def findRides():
     src = request.args.get("source")
     dist = request.args.get("destination")
-    
-    print(src,dist)
-    
-    data1 = {
-	"table" : "usersDB",
-	"columns" : "name",
-	"where" : "name=1234"
-            }
-    r = requests.post("http://127.0.0.1:5000/api/v1/db/read",json = data1)
-    for i in r:
-        print("FOUND",i)
-    return jsonify(),200
-
+    #print(src,dist)
+    data = {
+            "table" : "rideDB",
+            "columns" : ["_id","username","timestamp"],
+            "where" : ["source="+src,"destination="+dist]}
+    print("DATA...",data)
+    ret = requests.post("127.0.0.1:5000/api/v1/db/read",data = data)
+    if ret.status_code == 200:
+        return jsonify(),200
+    return jsonify(),500
 
 
 
@@ -165,6 +174,7 @@ input {
 @app.route("/api/v1/db/read",methods=["POST"])
 def ReadFromDB():
     data = request.get_json()
+    print("Data got",data)
     collection = data["table"]
     columns = data["columns"]
     where = data["where"]
@@ -198,19 +208,24 @@ def ReadFromDB():
 
 
 # api 8
+'''
+input {
+       "table" : "table name",
+       "data" : ["col1":"val1","col2":"val2"]
+}
+'''    
 @app.route("/api/v1/db/write",methods=["POST"])
 def WriteToDB():
     data = request.get_json()
     collection = data["table"]
-    try:
-        if collection == "userDB":
-            userDB.insert_one({data["column"]:data["insert"]})
-        elif collection == "ridesDB":
-            rideDB.insert_one({data["column"]:data["insert"]})
-        else:
-            return jsonify(),404
-    except :
-        return jsonify(),500
+    insert_data = data["data"]
+    if collection == "userDB":
+        userDB.insert_one(insert_data)
+    elif collection == "rideDB":
+        rideDB.insert_one(insert_data)
+    else:
+        return jsonify({"eror":"bad request (Table not found)"}),400
+    print(collection,insert_data)
     return jsonify(),200
 
 
