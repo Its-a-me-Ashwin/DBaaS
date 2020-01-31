@@ -92,7 +92,7 @@ def AddUser():
     
 
 
-# api 2 just add delete 
+# api 2 delete 
 @app.route("/api/v1/users/<username>",methods = ["DELETE"])
 def DeleteUser(username):
     print(username)
@@ -163,52 +163,6 @@ def makeRide():
         return jsonify(),500
 
 
-
-
-'''
-# 3 Create New Ride
-@app.route("/api/v1/rides/<rideId>",methods = ["GET"])
-def getRides (rideId):
-    if not str(rideId).isdigit():
-        return jsonify(),405
-    result = getRidesSQL(rideId)
-    if (len(result) > 0):
-        return jsonify(result),200
-    if (len(result) == 0):
-        return jsonify(),204
-
-'''
-#user = ["A","B"]
-'''
-
-
-myride = pymongo.MongoClient("mongodb://localhost:27017/")
-mydb = myride["RideShare"]
-sched = mydb["SchedRide"]
-mydb2 = myride["Users"]
-usercol = mydb2["UserData"]
-mydb3 = myride["Places"]
-placecol = mydb3["PlaceName"]
-
-unames = [
-        { "name": "John", "password": "Highway 37" },
-        { "name": "Doe", "password": "Highway 38" }
-        ]
-
-
-places = [
-        {"name":"Sarjapur"},
-        {"name":"Whitefield"}
-        ]
-
-usercol.insert_many(unames)
-placecol.insert_many(places)
-
-catalog={}
-catalog["book1"]=5
-catalog["book2"]=4
-'''
-
 #api 4
 '''
 input = /api/v1/rides?source=C&destination=A 
@@ -220,7 +174,7 @@ def findRides():
     #print(src,dist)
     data = {
             "table" : "rideDB",
-            "columns" : ["ride_id","createdby","timestamp",],
+            "columns" : ["ride_id","createdby","timestamp"],
             "where" : ["source="+src,"destination="+dist]
             }
     print("DATA...",data)
@@ -259,7 +213,10 @@ def findRideDetails (rideId):
 
 # api 6
 '''
-
+/api/v1/rides/<rideId>
+{
+    "username" : "bro"
+}
 '''
 @app.route("/api/v1/rides/<rideId>",methods = ["POST"])
 def joinRide(rideId):
@@ -291,19 +248,20 @@ def joinRide(rideId):
         elif ret1.status_code == 400:
             return jsonify({"error":"bad request (you give wrong data)"}),400
         elif ret1.status_code == 200:
-            print("Data present")
             #### update here #######
-            #print("Check The users",ret.text.split(''))
+            ret_json = json.loads(ret.text)
+            list_of_users = list(ret_json["0"]["users"])
+            list_of_users.append(str(username))
+            print("Data present",list_of_users)
             query = {
                     "ride_id" : str(rideId)
                     }
             up_query = {
                     "$set" : {
-                                "users" : ['a']
+                                "users" : list_of_users
                             }
                     }
-            #rideDB.update_one(query,)
-            
+            rideDB.update_one(query,up_query)
             return jsonify({"found" : "data"}),200    
         else:
             return jsonify(),500
@@ -374,15 +332,23 @@ def ReadFromDB():
     try:
         print("Check",query_result[0])
     except IndexError:
+        print("No data")
         return jsonify({"error" : "no data found"}),204
     try:
-        res_final = list()
+        num = 0
+        res_final = dict()
         for ret in query_result:
-            result = list()
+            result = dict()
             for key in columns:
-                result.append((key,ret[key]))
-            res_final.append(result)
+                ##################### FIX this by perging the data base
+                try:
+                    result[key] = ret[key]
+                except:
+                    pass
+            res_final[num] = result
+            num += 1
     except KeyError:
+        print("While slicing")
         return jsonify({"eror":"bad request (Column)"}),400
     json.dumps(res_final)
     print(json.dumps(res_final))
