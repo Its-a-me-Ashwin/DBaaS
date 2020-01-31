@@ -180,8 +180,8 @@ def findRides():
     print("DATA...",data)
     ret = requests.post("http://127.0.0.1:5000/api/v1/db/read",json = data)
     if ret.status_code == 200:
-        print(ret.text)
-        return jsonify(ret.text),200
+        print(json.loads(ret.text))
+        return json.loads(ret.text),200
     elif ret.status_code == 400:
         return jsonify({"error":"bad request"}),400
     elif ret.status_code == 204:
@@ -203,8 +203,8 @@ def findRideDetails (rideId):
     print(query)
     ret = requests.post("http://127.0.0.1:5000/api/v1/db/read", json = query)
     if ret.status_code == 200:
-        print("Final",jsonify(ret.text))
-        return jsonify(ret.text),200
+        print(json.loads(ret.text))
+        return json.loads(ret.text),200
     elif ret.status_code == 400:
         return jsonify({"error":"bad request"}),400
     elif ret.status_code == 204:
