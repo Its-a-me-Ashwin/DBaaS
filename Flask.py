@@ -20,31 +20,7 @@ userDB = mydb["users"]
 rideDB = mydb["rides"]
 #import mysql.connector
 
-userDB.insert_one({"name" : "abcd"})
-userDB.insert_one({"name1" : "abcde"})
-userDB.insert_one({"name2" : "abcdef"})
-userDB.insert_one({"bois": "pass"})
-userDB.insert_one({"username" : "abcde"})
-
-rideDB.insert_one({"ride_id":str(random.getrandbits(256)),
-                   "source":"C",
-                   "destination":"A",
-                   "timestamp":"2019",
-                   "created_by":"name1",
-                   "users":["A","name"]})
-
-
 app = Flask(__name__)
-
-
-userDB.insert_one({"name" : '111', "bois" : '3456789'})
-
-def getRidesSQL (ridesId):
-    return {1:1,2:2}
-
-Users = {}
-Users['FirstUser'] = "Password"
-
 hex_digits = set("0123456789abcdef")
 
 
@@ -61,10 +37,13 @@ hex_digits = set("0123456789abcdef")
 def AddUser():
     data = request.get_json()
     username = data["username"]
-    password = str(data["password"]).lower()
-    for c in password :
+    password = str(data["password"])
+    password_check = password.lower()
+    if len(password_check) < 40:
+        return jsonify(),400
+    for c in password_check :
         if c not in hex_digits :
-            abort(400)
+            return jsonify(),400
     data = {
             "table" : "userDB",
             "columns" : ["username"],
