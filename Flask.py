@@ -89,7 +89,7 @@ def AddUser():
 
     
 
-
+'''
 # 2 Remove User
 @app.route("/api/v1/users/<username>",methods = ["DELETE"])
 def DeleteUser(username):
@@ -108,7 +108,7 @@ def getRides (rideId):
     if (len(result) == 0):
         return jsonify(),204
 
-
+'''
 # 6 Join ride
 @app.route("/api/v1/rides/<rideId>", methods = ["POST"])
 def join_route (rideId):
@@ -174,8 +174,29 @@ def findRides():
     return jsonify(),500
 
 
+#api 5
+'''
+/api/v1/rides/123
+'''
+@app.route("/api/v1/rides/<rideId>",methods = ["GET"])
+def findRideDetails (rideId):
+    query = {
+                    "table" : "rideDB",
+                    "columns" : ["ride_id","source","destination","timestamp","createdby","users"],
+                    "where" : ["ride_id="+rideId]
+                }
+    print(query)
+    ret = requests.post("http://127.0.0.1:5000/api/v1/db/read", json = query)
+    if ret.status_code == 200:
+        print(ret.text)
+        return jsonify(ret.text),200
+    elif ret.status_code == 400:
+        return jsonify({"error":"bad request"}),400
+    elif ret.status_code == 204:
+        return jsonify(),204
+    return jsonify(),500
 
-
+'''
 @app.route("/api/v1/rides",methods=["POST"])
 def schedule_ride():
 	#access book name sent as JSON object 
@@ -195,13 +216,13 @@ def schedule_ride():
     else:
         abort(400)
     #return "abc"
-  
+  '''
 
 # api9      
 '''
 input {
        "table" : "table name",
-       "columns" : ["col1",col2],
+       "columns" : ["col1","col2"],
        "where" : ["col=val","col=val"]
 }
 '''
@@ -245,7 +266,7 @@ def ReadFromDB():
 '''
 input {
        "table" : "table name",
-       "data" : ["col1":"val1","col2":"val2"]
+       "data" : {"col1":"val1","col2":"val2"}
 }
 '''    
 @app.route("/api/v1/db/write",methods=["POST"])
