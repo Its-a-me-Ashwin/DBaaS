@@ -3,6 +3,5 @@
 
 ## TO DO
 * Atul's MOM
-* Finish linking APIS
-* TEST ALLL
+* TEST ALL APIS and error codes and return types
 * Start AWS 
