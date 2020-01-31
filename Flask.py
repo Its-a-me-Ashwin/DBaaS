@@ -11,6 +11,7 @@ import pandas as pd
 import sys
 import pymongo
 import random
+import json
 import requests
 
 myclient = pymongo.MongoClient("mongodb://localhost:27017/")
@@ -23,12 +24,13 @@ userDB.insert_one({"name" : "abcd"})
 userDB.insert_one({"name1" : "abcde"})
 userDB.insert_one({"name2" : "abcdef"})
 userDB.insert_one({"bois": "pass"})
+userDB.insert_one({"username" : "abcde"})
 
 rideDB.insert_one({"ride_id":str(random.getrandbits(256)),
                    "source":"C",
                    "destination":"A",
                    "timestamp":"2019",
-                   "createdby":"name1",
+                   "created_by":"name1",
                    "users":["A","name"]})
 
 
@@ -89,14 +91,81 @@ def AddUser():
 
     
 
-'''
-# 2 Remove User
+
+# api 2 just add delete 
 @app.route("/api/v1/users/<username>",methods = ["DELETE"])
 def DeleteUser(username):
-    data = request.get_json()
-    print(data)
-    return "delete"
+    print(username)
+    data = {
+            "table" : "userDB",
+            "columns" : ["username"],
+            "where" : ["username="+str(username)]
+            }
+    ret = requests.post("http://127.0.0.1:5000/api/v1/db/read",json = data)
+    print(ret.status_code)
+    if ret.status_code == 204:
+        return jsonify({"error":"bad request(no data present)"}),400
+    elif ret.status_code == 400:
+        return jsonify({"error":"bad request (you give wrong data)"}),400
+    elif ret.status_code == 200:
+        print("Data present")
+        ## put delete here
+        #######################################################################
+        del_query = {
+                    "username" : str(username)
+                }
+        userDB.delete_one(del_query)
+        return jsonify({"found" : "data"}),200    
+    else:
+        return jsonify(),500
 
+
+# 3 Create New Ride
+@app.route("/api/v1/rides",methods = ["POST"])
+def makeRide():
+    data = request.get_json()
+    username = data["created_by"]
+    timestamp = data["timestamp"]
+    source = data["source"]
+    destination = data["destination"]
+    print("Data got",username,timestamp,source,destination)
+    data = {
+            "table" : "userDB",
+            "columns" : ["username"],
+            "where" : ["username="+str(username)]
+            }
+    ret = requests.post("http://127.0.0.1:5000/api/v1/db/read",json = data)
+    print(ret.status_code)
+    if ret.status_code == 204:
+        return jsonify({"error":"bad request(no data present)"}),400
+    elif ret.status_code == 400:
+        return jsonify({"error":"bad request (you give wrong data)"}),400
+    elif ret.status_code == 200:
+        print("Data present")
+        ## create ride
+        data_part2 = {
+                "created_by" : username,
+                "timestamp" : timestamp,
+                "source" : source,
+                "destination" : destination,
+                "ride_id" : str(random.getrandbits(256)),
+                "users":[username]
+                }
+        write_query = {"table" : "rideDB", "data" : data_part2 }
+        print(write_query)
+        ret = requests.post("http://127.0.0.1:5000/api/v1/db/write", json = write_query)
+        if ret.status_code == 200:
+            return jsonify(),200
+        else:
+            return jsonify(),str(ret.status_code)
+        return jsonify({"found" : "data"}),200    
+    else:
+        return jsonify(),500
+
+
+
+
+'''
 # 3 Create New Ride
 @app.route("/api/v1/rides/<rideId>",methods = ["GET"])
 def getRides (rideId):
@@ -109,14 +178,6 @@ def getRides (rideId):
         return jsonify(),204
 
 '''
-# 6 Join ride
-@app.route("/api/v1/rides/<rideId>", methods = ["POST"])
-def join_route (rideId):
-    username = request.get_json()["username"]
-    #print(requests.get('http://www.google.com'))
-    return jsonify(),200
-
-
 #user = ["A","B"]
 '''
 
@@ -188,7 +249,7 @@ def findRideDetails (rideId):
     print(query)
     ret = requests.post("http://127.0.0.1:5000/api/v1/db/read", json = query)
     if ret.status_code == 200:
-        print(ret.text)
+        print("Final",jsonify(ret.text))
         return jsonify(ret.text),200
     elif ret.status_code == 400:
         return jsonify({"error":"bad request"}),400
@@ -196,27 +257,92 @@ def findRideDetails (rideId):
         return jsonify(),204
     return jsonify(),500
 
+# api 6
 '''
-@app.route("/api/v1/rides",methods=["POST"])
-def schedule_ride():
-	#access book name sent as JSON object 
-	#in POST request body
-    x = request.get_json()
-    uname=x["created_by"]
-    time=x["timestamp"]
-    sou=x["source"]
-    dest=x["destination"]
-    myquery = { "name": uname }
-    myquery1 = { "name":sou}
-    myquery2 = {"name":dest}
-    #mydoc = usercol.find(myquery)
-    if(usercol.find(myquery) is not None and  placecol.find(myquery1)is not None and placecol.find(myquery2) is not None and sou!=dest):
-        sched.insert_one(x)
-        return jsonify(" yduwq"),200
+
+'''
+@app.route("/api/v1/rides/<rideId>",methods = ["POST"])
+def joinRide(rideId):
+    data = request.get_json()
+    username = data["username"]
+    print(rideId,data)
+    data = {
+            "table" : "rideDB",
+            "columns" : ["ride_id","users"],
+            "where" : ["ride_id="+str(rideId)]
+            }
+    ret = requests.post("http://127.0.0.1:5000/api/v1/db/read",json = data)
+    if ret.status_code == 204:
+        return jsonify({"error":"bad request(no data present)"}),400
+    elif ret.status_code == 400:
+        return jsonify({"error":"bad request (you give wrong data)"}),400
+    elif ret.status_code == 200:
+        print("Ride Present")
+        print(ret.status_code,ret.text)
+        data = {
+                "table" : "userDB",
+                "columns" : ["username"],
+                "where" : ["username="+str(username)]
+                }
+        ret1 = requests.post("http://127.0.0.1:5000/api/v1/db/read",json = data)
+        print(ret1.status_code)
+        if ret1.status_code == 204:
+            return jsonify({"error":"bad request(no data present)"}),400
+        elif ret1.status_code == 400:
+            return jsonify({"error":"bad request (you give wrong data)"}),400
+        elif ret1.status_code == 200:
+            print("Data present")
+            #### update here #######
+            #print("Check The users",ret.text.split(''))
+            query = {
+                    "ride_id" : str(rideId)
+                    }
+            up_query = {
+                    "$set" : {
+                                "users" : ['a']
+                            }
+                    }
+            #rideDB.update_one(query,)
+            
+            return jsonify({"found" : "data"}),200    
+        else:
+            return jsonify(),500
+        return jsonify({"found" : "data"}),200    
     else:
-        abort(400)
-    #return "abc"
-  '''
+        return jsonify(),500
+
+# api 7
+'''
+/api/v1/rides/12334546484
+'''
+@app.route("/api/v1/rides/<rideId>",methods = ["DELETE"])
+def DeleteRides(rideId):
+    print(rideId)
+    data = {
+            "table" : "rideDB",
+            "columns" : ["ride_id"],
+            "where" : ["ride_id="+str(rideId)]
+            }
+    ret = requests.post("http://127.0.0.1:5000/api/v1/db/read",json = data)
+    print(ret.status_code)
+    if ret.status_code == 204:
+        return jsonify({"error":"bad request(no data present)"}),400
+    elif ret.status_code == 400:
+        return jsonify({"error":"bad request (you give wrong data)"}),400
+    elif ret.status_code == 200:
+        print("Data present")
+        ## put delete here
+        #######################################################################
+        del_query = {
+                    "ride_id" : str(rideId)
+                }
+        rideDB.delete_one(del_query)
+        return jsonify({"found" : "data"}),200    
+    else:
+        return jsonify(),500
+
+
+
 
 # api9      
 '''
@@ -250,13 +376,17 @@ def ReadFromDB():
     except IndexError:
         return jsonify({"error" : "no data found"}),204
     try:
-        result = list()
+        res_final = list()
         for ret in query_result:
+            result = list()
             for key in columns:
                 result.append((key,ret[key]))
+            res_final.append(result)
     except KeyError:
         return jsonify({"eror":"bad request (Column)"}),400
-    return jsonify(result),200
+    json.dumps(res_final)
+    print(json.dumps(res_final))
+    return json.dumps(res_final),200
 
 
 
@@ -265,7 +395,7 @@ def ReadFromDB():
 # api 8
 '''
 input {
-       "table" : "table name",
+       "table" : "table :name",
        "data" : {"col1":"val1","col2":"val2"}
 }
 '''    
