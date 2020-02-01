@@ -2,7 +2,6 @@
 
 
 ## TO DO
-* Atul's MOM
 * TEST ALL APIS and error codes and return types
 * Start AWS 
 
@@ -13,4 +12,8 @@
 * API 3 works with the places in the csv
 * API 4 works
 * API 5 works
+* API 6 works
+* API 7 works
+
+
 
