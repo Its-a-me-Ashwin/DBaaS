@@ -1,9 +1,10 @@
-# Kawaii neko
+# Assignment 1
 
 
 ## TO DO
-* TEST ALL APIS and error codes and return types
-* Start AWS 
+* TEST ALL APIS and error codes and return types(Done)
+* Start AWS (Done)
+* Deploy flask_finale.py on AWS
 
 ## Testing
 
