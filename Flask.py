@@ -59,7 +59,7 @@ def AddUser():
                 }
         ret_part2 = requests.post("http://127.0.0.1:5000/api/v1/db/write",json = data_part2)
         if ret_part2.status_code == 200:    return jsonify({"correctly":"done"}),200
-        else : return jsonify({"error" : "wrting probs"}),404
+        else : return jsonify({"error" : "wrting probs"}),400
     elif ret.status_code == 400:
         return jsonify({"eror":"bad request (Table not found)"}),400
     elif ret.status_code == 200:
