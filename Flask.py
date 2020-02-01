@@ -137,7 +137,6 @@ def makeRide():
             return jsonify(),200
         else:
             return jsonify(),str(ret.status_code)
-        return jsonify({"found" : "data"}),200    
     else:
         return jsonify(),500
 
