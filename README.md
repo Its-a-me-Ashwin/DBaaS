@@ -9,3 +9,4 @@
 ## Testing
 
 * API 1 works
+* API 2 works
