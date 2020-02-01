@@ -63,7 +63,7 @@ def AddUser():
     elif ret.status_code == 400:
         return jsonify({"eror":"bad request (Table not found)"}),400
     elif ret.status_code == 200:
-        return jsonify({"error" : "data alredy present"}),200    
+        return jsonify({"error" : "data alredy present"}),400    
     else:
         return jsonify(),500
 
