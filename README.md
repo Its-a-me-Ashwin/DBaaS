@@ -1,10 +1,12 @@
 # Assignment 1
 
-
 ## TO DO
 * TEST ALL APIS and error codes and return types(Done)
 * Start AWS (Done)
-* Deploy flask_finale.py on AWS
+* Deploy flask_finale.py on AWS (Done)
+* Look at delete
+* Look at the over and above specification( reverse proxy and app server, automated testing, load testing)
+* Set up static IP
 
 ## Testing
 
@@ -15,6 +17,3 @@
 * API 5 works
 * API 6 works
 * API 7 works
-
-
-
