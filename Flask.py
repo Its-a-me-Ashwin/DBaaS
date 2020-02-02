@@ -260,7 +260,7 @@ def joinRide(rideId):
                     }
             ret3 = requests.post("http://127.0.0.1:5000/api/v1/db/write",json = data_part3)
             if (ret3.status_code == 200):
-                return jsonify("update":"nice"),200
+                return jsonify({"update":"nice"}),200
             else:
                 return jsonify(),400
             #rideDB.update_one(query,up_query)
