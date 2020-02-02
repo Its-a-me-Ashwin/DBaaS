@@ -6,6 +6,7 @@ import pymongo
 import random
 import json
 import requests
+import csv
 
 myclient = pymongo.MongoClient("mongodb://localhost:27017/")
 mydb = myclient["mydatabase"]
@@ -16,7 +17,12 @@ rideDB = mydb["rides"]
 app = Flask(__name__)
 hex_digits = set("0123456789abcdef")
 
+places = []
 
+file = csv.reader(open('AreaNameEnum.csv'), delimiter=',')
+for line in file:
+    if(line[1]!="Area Name"):
+        places.append(line[1])
 
 
 # api 1
@@ -105,6 +111,18 @@ def makeRide():
     source = data["source"]
     destination = data["destination"]
     
+    findS = 0
+    findD = 0
+    
+    if source in places:
+        findS = 1
+    else:
+        return jsonify({"Error":"Bad Request (source doesnt exist)"}),400
+    if destination in places:
+        findD = 1
+    else:
+        return jsonify({"Error":"Bad Request (destination doesnt exist)"}),400
+    
     data = {
             "table" : "userDB",
             "columns" : ["username"],
@@ -116,8 +134,7 @@ def makeRide():
         return jsonify({"Error":"Bad request. No Data present"}),400
     elif ret.status_code == 400:
         return jsonify({"Error":"Bad request"}),400
-    elif ret.status_code == 200:
-        
+    elif ret.status_code == 200 and findS==1 and findD==1 and source!=destination:
         ## create ride
         data_part2 = {
                 "created_by" : username,
@@ -137,6 +154,8 @@ def makeRide():
             return jsonify({}),201
         else:
             return jsonify({"Error":"Bad Request"}),str(ret.status_code)
+    else:
+        return jsonify({"Error":"Bad request"}),400
 
 
 
@@ -148,21 +167,34 @@ input = /api/v1/rides?source=C&destination=A
 def findRides():
     src = request.args.get("source")
     dist = request.args.get("destination")
+    findS = 0
+    findD = 0
     #print(src,dist)
-    data = {
-            "table" : "rideDB",
-            "columns" : ["ride_id","createdby","timestamp"],
-            "where" : ["source="+src,"destination="+dist]
-            }
-    
-    ret = requests.post("http://127.0.0.1:5000/api/v1/db/read",json = data)
-    if ret.status_code == 200:
+    if src in places:
+        findS = 1
+    else:
+        return jsonify({"Error":"Bad Request (source doesnt exist)"}),400
+    if dist in places:
+        findD = 1
+    else:
+        return jsonify({"Error":"Bad Request (destination doesnt exist)"}),400
+    if(findS==1 and findD==1 and findS!=findD):
+        data = {
+                "table" : "rideDB",
+                "columns" : ["ride_id","createdby","timestamp"],
+                "where" : ["source="+src,"destination="+dist]
+                }
         
-        return json.loads(ret.text),200
-    elif ret.status_code == 400:
+        ret = requests.post("http://127.0.0.1:5000/api/v1/db/read",json = data)
+        if ret.status_code == 200:
+            
+            return json.loads(ret.text),200
+        elif ret.status_code == 400:
+            return jsonify({"Error":"Bad request"}),400
+        elif ret.status_code == 204:
+            return jsonify({}),204
+    else:
         return jsonify({"Error":"Bad request"}),400
-    elif ret.status_code == 204:
-        return jsonify({}),204
 
 
 #api 5
@@ -209,8 +241,6 @@ def joinRide(rideId):
     elif ret.status_code == 400:
         return jsonify({"Error":"Bad request (you have given wrong data)"}),400
     elif ret.status_code == 200:
-        
-        
         data = {
                 "table" : "userDB",
                 "columns" : ["username"],
@@ -226,28 +256,30 @@ def joinRide(rideId):
             #### update here #######
             ret_json = json.loads(ret.text)
             list_of_users = list(ret_json["0"]["users"])
-            list_of_users.append(str(username))
-            
-            query = {
-                    "ride_id" : str(rideId)
-                    }
-            up_query = {
-                    "$set" : {
-                                "users" : list_of_users
-                            }
-                    }
-            data_part3 = {
-                    "method" : "update",
-                    "table" : "rideDB",
-                    "query" : query,
-                    "insert" : up_query
-                    }
-            ret3 = requests.post("http://127.0.0.1:5000/api/v1/db/write",json = data_part3)
-            if (ret3.status_code == 200):
-                #update on knowing
-                return jsonify({}),200
+            if(str(username) not in list_of_users):
+                list_of_users.append(str(username))
+                query = {
+                        "ride_id" : str(rideId)
+                        }
+                up_query = {
+                        "$set" : {
+                                    "users" : list_of_users
+                                }
+                        }
+                data_part3 = {
+                        "method" : "update",
+                        "table" : "rideDB",
+                        "query" : query,
+                        "insert" : up_query
+                        }
+                ret3 = requests.post("http://127.0.0.1:5000/api/v1/db/write",json = data_part3)
+                if (ret3.status_code == 200):
+                    #update on knowing
+                    return jsonify({}),200
+                else:
+                    return jsonify({"Error: Bad Request"}),400
             else:
-                return jsonify({"Error: Bad Request"}),400
+                return jsonify({"error":"bad request (user already exists)"}),400
             #rideDB.update_one(query,up_query)
 
 # api 7
