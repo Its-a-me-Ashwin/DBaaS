@@ -40,10 +40,10 @@ def AddUser():
     password = str(data["password"])
     password_check = password.lower()
     if len(password_check) < 40:
-        return jsonify(),400
+        return jsonify({"error":"Password Constraint Failed"}),400
     for c in password_check :
         if c not in hex_digits :
-            return jsonify(),400
+            return jsonify({"error":"Password Constraint Failed"}),400
     data = {
             "table" : "userDB",
             "columns" : ["username"],
@@ -54,16 +54,17 @@ def AddUser():
     print(ret.status_code)
     if ret.status_code == 204:
         data_part2 = {
+                "method" : "write",
                 "table" : "userDB",
                 "data" : {"username":username,"password":password}
                 }
         ret_part2 = requests.post("http://127.0.0.1:5000/api/v1/db/write",json = data_part2)
         if ret_part2.status_code == 200:    return jsonify({"correctly":"done"}),200
-        else : return jsonify({"error" : "wrting probs"}),400
+        else : return jsonify({"error" : "wrting probs"}),404
     elif ret.status_code == 400:
         return jsonify({"eror":"bad request (Table not found)"}),400
     elif ret.status_code == 200:
-        return jsonify({"error" : "data alredy present"}),400    
+        return jsonify({"error" : "data alredy present"}),200    
     else:
         return jsonify(),500
 
@@ -93,8 +94,16 @@ def DeleteUser(username):
         del_query = {
                     "username" : str(username)
                 }
-        userDB.delete_one(del_query)
-        return jsonify({"found" : "data"}),200    
+        data_part2 = {
+                "method" : "delete",
+                "table" : "userDB",
+                "data" : {"username" : str(username)}
+                }
+        ret2 = requests.post("http://127.0.0.1:5000/api/v1/db/write",json = data_part2)
+        if ret2.status_code == 200:
+            return jsonify({"found" : "data"}),200    
+        else:
+            return jsonify({"error":"data not found"}),400
     else:
         return jsonify(),500
 
@@ -130,13 +139,17 @@ def makeRide():
                 "ride_id" : str(random.getrandbits(256)),
                 "users":[username]
                 }
-        write_query = {"table" : "rideDB", "data" : data_part2 }
+        write_query = {"method" : "write",
+                       "table" : "rideDB",
+                       "data" : data_part2
+                      }
         print(write_query)
         ret = requests.post("http://127.0.0.1:5000/api/v1/db/write", json = write_query)
         if ret.status_code == 200:
             return jsonify(),200
         else:
             return jsonify(),str(ret.status_code)
+        return jsonify({"found" : "data"}),200    
     else:
         return jsonify(),500
 
@@ -239,7 +252,18 @@ def joinRide(rideId):
                                 "users" : list_of_users
                             }
                     }
-            rideDB.update_one(query,up_query)
+            data_part3 = {
+                    "method" : "update",
+                    "table" : "rideDB",
+                    "query" : query,
+                    "insert" : up_query
+                    }
+            ret3 = requests.post("http://127.0.0.1:5000/api/v1/db/write",json = data_part3)
+            if (ret3.status_code == 200):
+                return jsonify("update":"nice"),200
+            else:
+                return jsonify(),400
+            #rideDB.update_one(query,up_query)
             return jsonify({"found" : "data"}),200    
         else:
             return jsonify(),500
@@ -272,8 +296,24 @@ def DeleteRides(rideId):
         del_query = {
                     "ride_id" : str(rideId)
                 }
+        data_part2 = {
+                "method" : "delete",
+                "table" : "rideDB",
+                "data" : {"ride_id" : str(rideId)}
+                }
+        ret2 = requests.post("http://127.0.0.1:5000/api/v1/db/write",json = data_part2)
+        if ret2.status_code == 200:
+            return jsonify({"found" : "data"}),200    
+        else:
+            return jsonify({"error":"data not deleted"}),400
+        
+        
+        '''
+        del_query = {
+                    "ride_id" : str(rideId)
+                }
         rideDB.delete_one(del_query)
-        return jsonify({"found" : "data"}),200    
+        return jsonify({"found" : "data"}),200'''    
     else:
         return jsonify(),500
 
@@ -318,7 +358,7 @@ def ReadFromDB():
         for ret in query_result:
             result = dict()
             for key in columns:
-                ##################### FIX this by perging the data base
+                ##################### FIX this by perging the data base ##################
                 try:
                     result[key] = ret[key]
                 except:
@@ -339,24 +379,63 @@ def ReadFromDB():
 # api 8
 '''
 input {
+       "method" : "write"
        "table" : "table :name",
        "data" : {"col1":"val1","col2":"val2"}
+} 
+{
+       "method" : "delete"
+       "table" : "table :name",
+       "data" : {"col1":"val1","col2":"val2"}
+}
+
+{
+       "method" : "update"
+       "table" : "table :name",
+       "query" : {"col1":"val1","col2":"val2"},
+       "insert" : {"$set" : 
+                   {
+                           "b" : "c"
+                   }
+           }
 }
 '''    
 @app.route("/api/v1/db/write",methods=["POST"])
 def WriteToDB():
     data = request.get_json()
-    collection = data["table"]
-    insert_data = data["data"]
-    if collection == "userDB":
-        userDB.insert_one(insert_data)
-    elif collection == "rideDB":
-        rideDB.insert_one(insert_data)
+    if (data["method"] == "write"):
+        collection = data["table"]
+        insert_data = data["data"]
+        if collection == "userDB":
+            userDB.insert_one(insert_data)
+        elif collection == "rideDB":
+            rideDB.insert_one(insert_data)
+        else:
+            return jsonify({"eror":"bad request (Table not found)"}),400
+        print(collection,insert_data)
+        return jsonify(),200
+    elif (data["method"] == "delete"):
+        collection = data["table"]
+        delete_data = data["data"]
+        if collection == "userDB":
+            userDB.delete_one(delete_data)
+        elif collection == "rideDB":
+            rideDB.delete_one(delete_data)
+        else:
+            return jsonify({"eror":"bad request (Table not found)"}),400
+        return jsonify(),200
+    elif (data["method"] == "update"):
+        collection = data["table"]
+        if collection == "userDB":
+            userDB.update_one(data["query"],data["insert"])
+        elif collection == "rideDB":
+            rideDB.update_one(data["query"],data["insert"])
+        else:
+            return jsonify({"eror":"bad request (Table not found)"}),400
+        return jsonify(),200
     else:
-        return jsonify({"eror":"bad request (Table not found)"}),400
-    print(collection,insert_data)
-    return jsonify(),200
-
+        return jsonify(),400
+        
 
 def getDate ():
     yyyy,mm,dd = str(str(datetime.now()).split(' ')[0]).split('-')
@@ -368,10 +447,3 @@ def getDate ():
 if __name__ == '__main__':
     app.debug=True
     app.run()
-    
-    
-    
-'''
-    
-
-'''    
