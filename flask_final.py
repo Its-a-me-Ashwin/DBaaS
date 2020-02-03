@@ -114,7 +114,7 @@ def DeleteUser(username):
                         ride_id = data["ride_id"]
                         if str(username) in data["users"]:
                             list_of_users = data["users"]
-                            list_of_users.pop(str(username))
+                            list_of_users.remove(str(username))
                             query = {
                             "ride_id" : str(ride_id)
                             }
