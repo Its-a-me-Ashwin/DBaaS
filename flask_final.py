@@ -219,7 +219,7 @@ def findRides():
         findD = 1
     else:
         return jsonify({"Error":"Bad Request (destination doesnt exist)"}),400
-    if(findS==1 and findD==1 and findS!=findD):
+    if(findS==1 and findD==1 and src!=dist):
         data = {
                 "table" : "rideDB",
                 "columns" : ["ride_id","createdby","timestamp"],
@@ -233,6 +233,7 @@ def findRides():
         elif ret.status_code == 400:
             return jsonify({"Error":"Bad request"}),400
         elif ret.status_code == 204:
+            print("no data present")
             return jsonify({}),204
     else:
         return jsonify({"Error":"Bad request"}),400
