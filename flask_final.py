@@ -49,7 +49,7 @@ def AddUser():
             "where" : ["username="+str(username)]
             }
     
-    ret = requests.post("http://127.0.0.1:5000/api/v1/db/read",json = data)
+    ret = requests.post("http://172.31.82.178:5000/api/v1/db/read",json = data)
 
     if ret.status_code == 204:
         data_part2 = {
@@ -57,7 +57,7 @@ def AddUser():
                 "table" : "userDB",
                 "data" : {"username":username,"password":password}
                 }
-        ret_part2 = requests.post("http://127.0.0.1:5000/api/v1/db/write",json = data_part2)
+        ret_part2 = requests.post("http://172.31.82.178:5000/api/v1/db/write",json = data_part2)
         if ret_part2.status_code == 200:    return jsonify({}),201
         else : return jsonify({"Error" : "Bad Request. Writing problem"}),400
     elif ret.status_code == 400:
@@ -77,7 +77,7 @@ def DeleteUser(username):
             "columns" : ["username"],
             "where" : ["username="+str(username)]
             }
-    ret = requests.post("http://127.0.0.1:5000/api/v1/db/read",json = data)
+    ret = requests.post("http://172.31.82.178:5000/api/v1/db/read",json = data)
     
     if ret.status_code == 204:
         return jsonify({"Error":"Bad request. No data present."}),400
@@ -95,14 +95,14 @@ def DeleteUser(username):
                 "table" : "userDB",
                 "data" : {"username" : str(username)}
                 }
-        ret2 = requests.post("http://127.0.0.1:5000/api/v1/db/write",json = data_part2)
+        ret2 = requests.post("http://172.31.82.178:5000/api/v1/db/write",json = data_part2)
         if ret2.status_code == 200:
             data_pat3 = {
                     "method" : "delete",
                     "table" : "rideDB",
                     "data" : {"created_by" : str(username)}
                     }
-            ret3 = requests.post("http://127.0.0.1:5000/api/v1/db/write",json = data_pat3)
+            ret3 = requests.post("http://172.31.82.178:5000/api/v1/db/write",json = data_pat3)
             if ret3.status_code == 200:
                 ###################### del for users ###############################
                 for data in rideDB.find():
@@ -125,7 +125,7 @@ def DeleteUser(username):
                                     "query" : query,
                                     "insert" : up_query
                                     }
-                            ret4 = requests.post("http://127.0.0.1:5000/api/v1/db/write",json = data_part3)
+                            ret4 = requests.post("http://172.31.82.178:5000/api/v1/db/write",json = data_part3)
                             if ret4.status_code == 200:
                                 return jsonify(),200
                             else:
@@ -165,7 +165,7 @@ def makeRide():
             "columns" : ["username"],
             "where" : ["username="+str(username)]
             }
-    ret = requests.post("http://127.0.0.1:5000/api/v1/db/read",json = data)
+    ret = requests.post("http://172.31.82.178:5000/api/v1/db/read",json = data)
     
     if ret.status_code == 204:
         return jsonify({"Error":"Bad request. No Data present"}),400
@@ -186,7 +186,7 @@ def makeRide():
                        "data" : data_part2
                       }
         
-        ret = requests.post("http://127.0.0.1:5000/api/v1/db/write", json = write_query)
+        ret = requests.post("http://172.31.82.178:5000/api/v1/db/write", json = write_query)
         if ret.status_code == 200:
             return jsonify({}),201
         else:
@@ -222,7 +222,7 @@ def findRides():
                 "where" : ["source="+src,"destination="+dist]
                 }
         
-        ret = requests.post("http://127.0.0.1:5000/api/v1/db/read",json = data)
+        ret = requests.post("http://172.31.82.178:5000/api/v1/db/read",json = data)
         if ret.status_code == 200:
             
             return json.loads(ret.text),200
@@ -246,7 +246,7 @@ def findRideDetails (rideId):
                     "where" : ["ride_id="+rideId]
                 }
     
-    ret = requests.post("http://127.0.0.1:5000/api/v1/db/read", json = query)
+    ret = requests.post("http://172.31.82.178:5000/api/v1/db/read", json = query)
     if ret.status_code == 200:
         
         return json.loads(ret.text),200
@@ -272,7 +272,7 @@ def joinRide(rideId):
             "columns" : ["ride_id","users"],
             "where" : ["ride_id="+str(rideId)]
             }
-    ret = requests.post("http://127.0.0.1:5000/api/v1/db/read",json = data)
+    ret = requests.post("http://172.31.82.178:5000/api/v1/db/read",json = data)
     if ret.status_code == 204:
         return jsonify({"Error":"Bad request(no data present)"}),400
     elif ret.status_code == 400:
@@ -283,7 +283,7 @@ def joinRide(rideId):
                 "columns" : ["username"],
                 "where" : ["username="+str(username)]
                 }
-        ret1 = requests.post("http://127.0.0.1:5000/api/v1/db/read",json = data)
+        ret1 = requests.post("http://172.31.82.178:5000/api/v1/db/read",json = data)
         
         if ret1.status_code == 204:
             return jsonify({"error":"bad request(no data present)"}),400
@@ -309,7 +309,7 @@ def joinRide(rideId):
                         "query" : query,
                         "insert" : up_query
                         }
-                ret3 = requests.post("http://127.0.0.1:5000/api/v1/db/write",json = data_part3)
+                ret3 = requests.post("http://172.31.82.178:5000/api/v1/db/write",json = data_part3)
                 if (ret3.status_code == 200):
                     #update on knowing
                     return jsonify({}),200
@@ -331,7 +331,7 @@ def DeleteRides(rideId):
             "columns" : ["ride_id"],
             "where" : ["ride_id="+str(rideId)]
             }
-    ret = requests.post("http://127.0.0.1:5000/api/v1/db/read",json = data)
+    ret = requests.post("http://172.31.82.178:5000/api/v1/db/read",json = data)
     
     if ret.status_code == 204:
         return jsonify({"error":"bad request(no data present)"}),400
@@ -349,7 +349,7 @@ def DeleteRides(rideId):
                 "table" : "rideDB",
                 "data" : {"ride_id" : str(rideId)}
                 }
-        ret2 = requests.post("http://127.0.0.1:5000/api/v1/db/write",json = data_part2)
+        ret2 = requests.post("http://172.31.82.178:5000/api/v1/db/write",json = data_part2)
         if ret2.status_code == 200:
             return jsonify({"found" : "data"}),200    
         else:
