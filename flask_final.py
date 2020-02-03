@@ -21,11 +21,11 @@ places = []
 
 file = csv.reader(open('AreaNameEnum.csv'), delimiter=',')
 for line in file:
-    if(line[1]!="Area Name"):
-        places.append(line[1])
+    if(line[0]!="Area No."):
+        places.append(line[0])
 
 
-ip = "127.0.0.1"
+ip = "172.31.82.178"
 port = "5000"
 addrr = ip+':'+port
 
