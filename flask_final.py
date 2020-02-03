@@ -163,41 +163,42 @@ def makeRide():
         findD = 1
     else:
         return jsonify({"Error":"Bad Request (destination doesnt exist)"}),400
-    
-    data = {
-            "table" : "userDB",
-            "columns" : ["username"],
-            "where" : ["username="+str(username)]
-            }
-    ret = requests.post("http://"+addrr+"/api/v1/db/read",json = data)
-    
-    if ret.status_code == 204:
-        return jsonify({"Error":"Bad request. No Data present"}),400
-    elif ret.status_code == 400:
-        return jsonify({"Error":"Bad request"}),400
-    elif ret.status_code == 200 and findS==1 and findD==1 and source!=destination:
-        ## create ride
-        data_part2 = {
-                "created_by" : username,
-                "timestamp" : timestamp,
-                "source" : source,
-                "destination" : destination,
-                "ride_id" : str(random.getrandbits(256)),
-                "users":[username]
+    if(source!=destination):
+        data = {
+                "table" : "userDB",
+                "columns" : ["username"],
+                "where" : ["username="+str(username)]
                 }
-        write_query = {"method" : "write",
-                       "table" : "rideDB",
-                       "data" : data_part2
-                      }
+        ret = requests.post("http://"+addrr+"/api/v1/db/read",json = data)
         
-        ret = requests.post("http://"+addrr+"/api/v1/db/write", json = write_query)
-        if ret.status_code == 200:
-            return jsonify({}),201
+        if ret.status_code == 204:
+            return jsonify({"Error":"Bad request. No Data present"}),400
+        elif ret.status_code == 400:
+            return jsonify({"Error":"Bad request"}),400
+        elif ret.status_code == 200 and findS==1 and findD==1 and source!=destination:
+            ## create ride
+            data_part2 = {
+                    "created_by" : username,
+                    "timestamp" : timestamp,
+                    "source" : source,
+                    "destination" : destination,
+                    "ride_id" : str(random.getrandbits(256)),
+                    "users":[username]
+                    }
+            write_query = {"method" : "write",
+                           "table" : "rideDB",
+                           "data" : data_part2
+                          }
+            
+            ret = requests.post("http://"+addrr+"/api/v1/db/write", json = write_query)
+            if ret.status_code == 200:
+                return jsonify({}),201
+            else:
+                return jsonify({"Error":"Bad Request"}),str(ret.status_code)
         else:
-            return jsonify({"Error":"Bad Request"}),str(ret.status_code)
+            return jsonify({"Error":"Bad request"}),400
     else:
         return jsonify({"Error":"Bad request"}),400
-
 
 
 #api 4
