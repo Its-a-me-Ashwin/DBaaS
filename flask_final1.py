@@ -184,8 +184,8 @@ def makeRide():
             data_part2 = {
                     "created_by" : username,
                     "timestamp" : timestamp,
-                    "source" : int(source),
-                    "destination" : int(destination),
+                    "source" : source,
+                    "destination" : destination,
                     "rideId" : str(random.getrandbits(256)),
                     "users":[username]
                     }
