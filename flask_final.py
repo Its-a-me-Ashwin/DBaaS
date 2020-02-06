@@ -25,6 +25,7 @@ for line in file:
         places.append(line[0])
 
 
+#ip = "127.0.0.1"
 ip = "172.31.82.178"
 port = "5000"
 addrr = ip+':'+port
@@ -52,7 +53,7 @@ def AddUser():
             "columns" : ["username"],
             "where" : ["username="+str(username)]
             }
-    
+
     ret = requests.post("http://"+addrr+"/api/v1/db/read",json = data)
 
     if ret.status_code == 204:
@@ -67,28 +68,28 @@ def AddUser():
     elif ret.status_code == 400:
         return jsonify({"Error":"Bad request"}),400
     elif ret.status_code == 200:
-        return jsonify({"Error" : "Bad Request. Data alredy present"}),400    
+        return jsonify({"Error" : "Bad Request. Data alredy present"}),400
 
 
 
 
-# api 2 delete 
+# api 2 delete
 @app.route("/api/v1/users/<username>",methods = ["DELETE"])
 def DeleteUser(username):
-    
+
     data = {
             "table" : "userDB",
             "columns" : ["username"],
             "where" : ["username="+str(username)]
             }
     ret = requests.post("http://"+addrr+"/api/v1/db/read",json = data)
-    
+
     if ret.status_code == 204:
         return jsonify({"Error":"Bad request. No data present."}),400
     elif ret.status_code == 400:
         return jsonify({"Error":"Bad request"}),400
     elif ret.status_code == 200:
-        
+
         ## put delete here
         #######################################################################
         del_query = {
@@ -151,10 +152,10 @@ def makeRide():
     timestamp = data["timestamp"]
     source = data["source"]
     destination = data["destination"]
-    
+
     findS = 0
     findD = 0
-    
+
     if source in places:
         findS = 1
     else:
@@ -170,7 +171,7 @@ def makeRide():
                 "where" : ["username="+str(username)]
                 }
         ret = requests.post("http://"+addrr+"/api/v1/db/read",json = data)
-        
+
         if ret.status_code == 204:
             return jsonify({"Error":"Bad request. No Data present"}),400
         elif ret.status_code == 400:
@@ -189,7 +190,7 @@ def makeRide():
                            "table" : "rideDB",
                            "data" : data_part2
                           }
-            
+
             ret = requests.post("http://"+addrr+"/api/v1/db/write", json = write_query)
             if ret.status_code == 200:
                 return jsonify({}),201
@@ -203,7 +204,7 @@ def makeRide():
 
 #api 4
 '''
-input = /api/v1/rides?source=C&destination=A 
+input = /api/v1/rides?source=C&destination=A
 '''
 @app.route("/api/v1/rides",methods=["GET"])
 def findRides():
@@ -212,6 +213,7 @@ def findRides():
     findS = 0
     findD = 0
     #print(src,dist)
+    '''
     if src in places:
         findS = 1
     else:
@@ -220,17 +222,24 @@ def findRides():
         findD = 1
     else:
         return jsonify({"Error":"Bad Request (destination doesnt exist)"}),400
+    '''
+    findD = findS = 1
     if(findS==1 and findD==1 and src!=dist):
         data = {
                 "table" : "rideDB",
                 "columns" : ["rideId","createdby","timestamp"],
                 "where" : ["source="+src,"destination="+dist]
                 }
-        
+
         ret = requests.post("http://"+addrr+"/api/v1/db/read",json = data)
         if ret.status_code == 200:
-            a = json.load(ret.text)
-            return a['0'],200
+            print(json.loads(ret.text))
+            a = json.loads(ret.text)
+            Output = []
+            for i in a :
+                Output.append(a[i])
+            #print(type(jsonify(a['0'])))
+            return jsonify(Output),200
         elif ret.status_code == 400:
             return jsonify({"Error":"Bad request"}),400
         elif ret.status_code == 204:
@@ -251,11 +260,11 @@ def findRideDetails (rideId):
                     "columns" : ["rideId","source","destination","timestamp","createdby","users"],
                     "where" : ["rideId="+rideId]
                 }
-    
+
     ret = requests.post("http://"+addrr+"/api/v1/db/read", json = query)
     if ret.status_code == 200:
-        a = json.loads(ret.text)
-        return a['0'],200
+
+        return json.loads(ret.text),200
     elif ret.status_code == 400:
         return jsonify({"Error":"Bad request"}),400
     elif ret.status_code == 204:
@@ -272,7 +281,7 @@ def findRideDetails (rideId):
 def joinRide(rideId):
     data = request.get_json()
     username = data["username"]
-    
+
     data = {
             "table" : "rideDB",
             "columns" : ["rideId","users"],
@@ -290,7 +299,7 @@ def joinRide(rideId):
                 "where" : ["username="+str(username)]
                 }
         ret1 = requests.post("http://"+addrr+"/api/v1/db/read",json = data)
-        
+
         if ret1.status_code == 204:
             return jsonify({"error":"bad request(no data present)"}),400
         elif ret1.status_code == 400:
@@ -331,20 +340,20 @@ def joinRide(rideId):
 '''
 @app.route("/api/v1/rides/<rideId>",methods = ["DELETE"])
 def DeleteRides(rideId):
-    
+
     data = {
             "table" : "rideDB",
             "columns" : ["rideId"],
             "where" : ["rideId="+str(rideId)]
             }
     ret = requests.post("http://"+addrr+"/api/v1/db/read",json = data)
-    
+
     if ret.status_code == 204:
         return jsonify({"error":"bad request(no data present)"}),400
     elif ret.status_code == 400:
         return jsonify({"error":"bad request (you have given wrong data)"}),400
     elif ret.status_code == 200:
-        
+
         ## put delete here
         #######################################################################
         del_query = {
@@ -357,13 +366,13 @@ def DeleteRides(rideId):
                 }
         ret2 = requests.post("http://"+addrr+"/api/v1/db/write",json = data_part2)
         if ret2.status_code == 200:
-            return jsonify({"found" : "data"}),200    
+            return jsonify({"found" : "data"}),200
         else:
             return jsonify({"error":"bad request"}),400
 
 
 
-# api9      
+# api9
 '''
 input {
        "table" : "table name",
@@ -425,7 +434,7 @@ input {
        "method" : "write"
        "table" : "table :name",
        "data" : {"col1":"val1","col2":"val2"}
-} 
+}
 {
        "method" : "delete"
        "table" : "table :name",
@@ -435,13 +444,13 @@ input {
        "method" : "update"
        "table" : "table :name",
        "query" : {"col1":"val1","col2":"val2"},
-       "insert" : {"$set" : 
+       "insert" : {"$set" :
                    {
                            "b" : "c"
                    }
            }
 }
-'''    
+'''
 @app.route("/api/v1/db/write",methods=["POST"])
 def WriteToDB():
     data = request.get_json()
@@ -477,14 +486,14 @@ def WriteToDB():
         return jsonify(),200
     else:
         return jsonify(),400
-        
+
 
 def getDate ():
     yyyy,mm,dd = str(str(datetime.now()).split(' ')[0]).split('-')
     h,m,s = str(datetime.now()).split(' ')[1].split(':')
     s = s.split(".")[0]
     return dd + "-" + mm + "-" + yyyy + ":" + s + "-" + m + "-" + h
-    
+
 
 if __name__ == '__main__':
     app.debug=True
