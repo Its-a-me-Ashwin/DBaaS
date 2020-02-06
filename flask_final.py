@@ -230,7 +230,7 @@ def findRides():
         ret = requests.post("http://"+addrr+"/api/v1/db/read",json = data)
         if ret.status_code == 200:
             a = json.load(ret.text)
-            return a[0],200
+            return a['0'],200
         elif ret.status_code == 400:
             return jsonify({"Error":"Bad request"}),400
         elif ret.status_code == 204:
