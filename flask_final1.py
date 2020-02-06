@@ -12,10 +12,6 @@ myclient = pymongo.MongoClient("mongodb://localhost:27017/")
 mydb = myclient["mydatabase"]
 userDB = mydb["users"]
 rideDB = mydb["rides"]
-userDB.drop()
-rideDB.drop()
-userDB = mydb["users"]
-rideDB = mydb["rides"]
 #import mysql.connector
 
 app = Flask(__name__)
