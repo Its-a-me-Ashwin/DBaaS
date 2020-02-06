@@ -111,12 +111,12 @@ def DeleteUser(username):
                 ###################### del for users ###############################
                 for data in rideDB.find():
                     try:
-                        ride_id = data["ride_id"]
+                        rideId = data["rideId"]
                         if str(username) in data["users"]:
                             list_of_users = data["users"]
                             list_of_users.remove(str(username))
                             query = {
-                            "ride_id" : str(ride_id)
+                            "rideId" : str(rideId)
                             }
                             up_query = {
                                     "$set" : {
@@ -182,7 +182,7 @@ def makeRide():
                     "timestamp" : timestamp,
                     "source" : source,
                     "destination" : destination,
-                    "ride_id" : str(random.getrandbits(256)),
+                    "rideId" : str(random.getrandbits(256)),
                     "users":[username]
                     }
             write_query = {"method" : "write",
@@ -223,7 +223,7 @@ def findRides():
     if(findS==1 and findD==1 and src!=dist):
         data = {
                 "table" : "rideDB",
-                "columns" : ["ride_id","createdby","timestamp"],
+                "columns" : ["rideId","createdby","timestamp"],
                 "where" : ["source="+src,"destination="+dist]
                 }
         
@@ -248,8 +248,8 @@ def findRides():
 def findRideDetails (rideId):
     query = {
                     "table" : "rideDB",
-                    "columns" : ["ride_id","source","destination","timestamp","createdby","users"],
-                    "where" : ["ride_id="+rideId]
+                    "columns" : ["rideId","source","destination","timestamp","createdby","users"],
+                    "where" : ["rideId="+rideId]
                 }
     
     ret = requests.post("http://"+addrr+"/api/v1/db/read", json = query)
@@ -275,8 +275,8 @@ def joinRide(rideId):
     
     data = {
             "table" : "rideDB",
-            "columns" : ["ride_id","users"],
-            "where" : ["ride_id="+str(rideId)]
+            "columns" : ["rideId","users"],
+            "where" : ["rideId="+str(rideId)]
             }
     ret = requests.post("http://"+addrr+"/api/v1/db/read",json = data)
     if ret.status_code == 204:
@@ -302,7 +302,7 @@ def joinRide(rideId):
             if(str(username) not in list_of_users):
                 list_of_users.append(str(username))
                 query = {
-                        "ride_id" : str(rideId)
+                        "rideId" : str(rideId)
                         }
                 up_query = {
                         "$set" : {
@@ -334,8 +334,8 @@ def DeleteRides(rideId):
     
     data = {
             "table" : "rideDB",
-            "columns" : ["ride_id"],
-            "where" : ["ride_id="+str(rideId)]
+            "columns" : ["rideId"],
+            "where" : ["rideId="+str(rideId)]
             }
     ret = requests.post("http://"+addrr+"/api/v1/db/read",json = data)
     
@@ -348,12 +348,12 @@ def DeleteRides(rideId):
         ## put delete here
         #######################################################################
         del_query = {
-                    "ride_id" : str(rideId)
+                    "rideId" : str(rideId)
                 }
         data_part2 = {
                 "method" : "delete",
                 "table" : "rideDB",
-                "data" : {"ride_id" : str(rideId)}
+                "data" : {"rideId" : str(rideId)}
                 }
         ret2 = requests.post("http://"+addrr+"/api/v1/db/write",json = data_part2)
         if ret2.status_code == 200:
