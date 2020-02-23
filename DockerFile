@@ -1,0 +1,22 @@
+FROM python:3-alpine
+
+RUN mkdir -p /usr/src/app
+WORKDIR /usr/src/app
+
+COPY requirements.txt /usr/src/app/
+RUN apk add py-pip
+RUN echo 'http://dl-cdn.alpinelinux.org/alpine/v3.6/main' >> /etc/apk/repositories
+RUN echo 'http://dl-cdn.alpinelinux.org/alpine/v3.6/community' >> /etc/apk/repositories
+RUN apk update
+RUN apk add mongodb=3.4.4-r0
+RUN mongo --version
+
+RUN pip install --no-cache-dir -r requirements.txt
+RUN flask --version
+
+COPY . /usr/src/app
+
+# Expose the Flask port
+EXPOSE 80
+
+CMD [ "python", "./flask_final1.py" ]

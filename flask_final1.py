@@ -1,6 +1,5 @@
 from flask import Flask, render_template,jsonify,request,abort
 from datetime import datetime
-import pandas as pd
 import sys
 import pymongo
 import random
