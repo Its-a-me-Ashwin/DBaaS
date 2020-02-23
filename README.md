@@ -1,7 +1,6 @@
 # Assignment 1
 
 ## TO DO
-**Autuls MAMA*
 * TEST ALL APIS and error codes and return types(Done)
 * Start AWS (Done)
 * Deploy flask_finale.py on AWS (Done)
