@@ -1,7 +1,7 @@
 # Assignment 1
 
 ## TO DO
-* My mom
+* Create yml file and start looking into container communication
 
 ## Testing
 
