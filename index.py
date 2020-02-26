@@ -62,7 +62,18 @@ def AddUser():
             "where" : ["username="+str(username)]
             }
     ## Send the request ##
+    
+    ## OLD
     ret = requests.post("http://"+addrr+"/api/v1/db/read",json = data)
+    ## NEW
+    
+    ret_new = requests.get("http://"+addrr+"/api/v1/rides");
+    
+    test_presence = list(map(lambda x: x.strip('"'),ret_new.text.strip('][').split(', ')))
+    if username in test_presence:
+        return jsonify({"Error" : "Bad Request. Data alredy present P2"}),400
+    
+    
     ## Send request for Write the user ##
     if ret.status_code == 204:
         data_part2 = {
@@ -92,6 +103,16 @@ def DeleteUser(username):
             }
     ret = requests.post("http://"+addrr+"/api/v1/db/read",json = data)
 
+    ret_new = requests.get("http://"+addrr+"/api/v1/rides");
+    
+    #print("Gay",username,username in ret_sex.text.strip('][').split(', '))
+    
+    ret_new = requests.get("http://"+addrr+"/api/v1/rides");
+    
+    test_presence = list(map(lambda x: x.strip('"'),ret_new.text.strip('][').split(', ')))
+    if username not in test_presence:
+        return jsonify({"Error" : "Bad Request. Data Not present P2"}),400
+    
     if ret.status_code == 204:
         return jsonify({"Error":"Bad request. No data present."}),400
     elif ret.status_code == 400:
@@ -176,7 +197,7 @@ def listAllUsers():
             try:
                 result.append(out["username"])
             except KeyError:
-                print("Shyit happened")
+                pass
         #print("Start",result)
         #print(type(result))
         return json.dumps(result),200
