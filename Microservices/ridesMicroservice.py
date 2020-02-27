@@ -17,7 +17,7 @@ import csv
 
 myclient = pymongo.MongoClient("mongodb://localhost:27017/")
 mydb = myclient["mydatabase"]
-userDB = mydb["users"]
+#userDB = mydb["users"]
 rideDB = mydb["rides"]
 #import mysql.connector
 
