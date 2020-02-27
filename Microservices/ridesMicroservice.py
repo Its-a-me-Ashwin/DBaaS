@@ -409,6 +409,8 @@ def getDate ():
     return dd + "-" + mm + "-" + yyyy + ":" + s + "-" + m + "-" + h
 
 
+
+
 if __name__ == '__main__':
     app.debug=True
-    app.run(host = ip, port = 8000)
+    app.run(host = ip, port = portRide)
