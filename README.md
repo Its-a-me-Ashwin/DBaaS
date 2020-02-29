@@ -1,17 +1,11 @@
 # Assignment 2
 
 ## TO DO
-* Create yml file and start looking into container communication
+* Deploy the new code on AWS 
+* Test the api again on the aws system
+* Change IPS and deploy
 
 ## Testing
 
-*RIDES
-  * Add rides Work
-  * Search by src and dst Work
-  * Search by rideID wrok
-  * Join rides work (Change IP to public)
-  * Delete data Work
-* USERS
- * Add user works
- * Fix delete
- * Add ride purge for the user purge
+* All APIs are tested and work on local host
+* Comuniation between the containers is working fine
