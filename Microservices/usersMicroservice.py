@@ -110,9 +110,10 @@ def DeleteUser(username):
     #print("Gay",username,username in ret_sex.text.strip('][').split(', '))
     
     try:
-        ret_new = requests.get("http://"+addrrUser+"/api/v1/user");
-        
+        ret_new = requests.get("http://"+addrrUser+"/api/v1/users");
+        #print("http://"+addrrUser+"/api/v1/user")
         test_presence = list(map(lambda x: x.strip('"'),ret_new.text.strip('][').split(', ')))
+        print(username in test_presence,username,test_presence)
         if username not in test_presence:
             return jsonify({"Error" : "Bad Request. Data Not present P2"}),400
     except:
@@ -145,6 +146,7 @@ def DeleteUser(username):
             ret3 = requests.post("http://"+addrrRide+"/api/v1/db/write",json = data_pat3)
             if ret3.status_code == 200:
                 ###################### del for users ###############################
+                
                 for data in rideDB.find():
                     try:
                         rideId = data["rideId"]

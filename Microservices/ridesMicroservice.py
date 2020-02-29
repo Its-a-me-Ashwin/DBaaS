@@ -74,7 +74,7 @@ def makeRide():
 
     findS = 0
     findD = 0
-    #print(source in places,"234567890")
+    print(places)
     if source in places:
         findS = 1
     else:
@@ -143,11 +143,12 @@ def findRides():
     if(findS==1 and findD==1 and src!=dist):
         data = {
                 "table" : "rideDB",
-                "columns" : ["rideId","createdby","timestamp"],
+                "columns" : ["rideId","created_by","timestamp"],
                 "where" : ["source="+src,"destination="+dist]
                 }
 
         ret = requests.post("http://"+addrrRide+"/api/v1/db/read",json = data)
+        print(ret.text)
         if ret.status_code == 200:
             return json.loads(ret.text),200
         elif ret.status_code == 400:
@@ -208,7 +209,7 @@ def joinRide(rideId):
                 "columns" : ["username"],
                 "where" : ["username="+str(username)]
                 }
-        ret1 = requests.post("http://"+addrrUser+"/api/v1/db/read",json = data)
+        ret1 = requests.post("http://"+addrrUser+"/api/v1/db/read",json = data) # PUblic IP
 
         if ret1.status_code == 204:
             return jsonify({"error":"bad request(no data present)"}),400
