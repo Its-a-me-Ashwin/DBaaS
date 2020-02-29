@@ -14,7 +14,7 @@ import json
 import requests
 import csv
 
-myclient = pymongo.MongoClient("mongodb://52.54.202.249:27017/")
+myclient = pymongo.MongoClient("mongodb://localhost:27017/")
 mydb = myclient["mydatabase"]
 userDB = mydb["users"]
 #rideDB = mydb["rides"]
@@ -32,8 +32,8 @@ for line in file:
 
 
 #ip = "172.31.82.178"
-ipUser = "0.0.0.0" #  The user ip
-ipRide = "52.54.202.249" # The ip the aws system (the thing u put in postman)
+ipUser = "127.0.0.1" #  The user ip
+ipRide = "127.0.0.1" # The ip the aws system (the thing u put in postman)
 portUser = "8080" # Dont change
 portRide = "8000" # Dont Change
 addrrUser = ipUser+':'+portUser
@@ -148,9 +148,9 @@ def DeleteUser(username):
             if ret3.status_code == 200:
                 ###################### del for users ###############################
                 ret69 = requests.get("http://"+addrrRide+"/api/v1/rides/all")
-                print (json.loads(ret69.text))                    
-                for key in json.loads(ret69.text).keys():
-                    try:
+                #print ("Data",json.loads(ret69.text))                    
+                try:
+                    for key in json.loads(ret69.text).keys():
                         data = json.loads(ret69.text)[key]
                         rideId = data["rideId"]
                         if str(username) in data["users"]:
@@ -176,8 +176,8 @@ def DeleteUser(username):
                                 return jsonify(),200
                             else:
                                 return jsonify({"error":"usernot foumd"}),400
-                    except KeyError:
-                        pass
+                except ValueError:
+                    pass
                 return jsonify({}),200
             else:
                 return jsonify({"error":"del with created by failed"}),400
