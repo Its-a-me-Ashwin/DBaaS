@@ -5,4 +5,9 @@
 
 ## Testing
 
-* All APIS work
+*RIDES
+  * Add rides Work
+  * Search by src and dst Work
+  * Search by rideID wrok
+  * Join rides work (Change IP to public)
+  * Delete data Work
