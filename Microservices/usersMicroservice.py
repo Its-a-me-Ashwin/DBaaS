@@ -32,11 +32,12 @@ for line in file:
 
 
 #ip = "172.31.82.178"
-ip = "127.0.0.1"
+ipUser = "127.0.0.1"
+ipRide = "127.0.0.1"
 portUser = "8080"
 portRide = "8000"
-addrrUser = ip+':'+portUser
-addrrRide = ip+':'+portRide
+addrrUser = ipUser+':'+portUser
+addrrRide = ipRide+':'+portRide
 
 # api 1
 '''
@@ -146,9 +147,11 @@ def DeleteUser(username):
             ret3 = requests.post("http://"+addrrRide+"/api/v1/db/write",json = data_pat3)
             if ret3.status_code == 200:
                 ###################### del for users ###############################
-                
-                for data in rideDB.find():
+                ret69 = requests.get("http://"+addrrRide+"/api/v1/rides/all")
+                print (json.loads(ret69.text))                    
+                for key in json.loads(ret69.text).keys():
                     try:
+                        data = json.loads(ret69.text)[key]
                         rideId = data["rideId"]
                         if str(username) in data["users"]:
                             ## delete the user from the list of users in rides data base ##
@@ -221,11 +224,13 @@ def clearUserDB ():
     
     ret = requests.post("http://"+addrrUser+"/api/v1/db/write",json = data)
 
-    if ret.status_code == 204:
+    ret2 = requests.post("http://"+addrrRide+"/api/v1/db/clear")
+
+    if ret.status_code == 204 or ret2.status_code == 400:
         return jsonify({"Error":"Bad request. No data present."}),400
-    elif ret.status_code == 400:
+    elif ret.status_code == 400 or ret2.status_code == 400:
         return jsonify({"Error":"Bad request"}),400
-    elif ret.status_code == 200:
+    elif ret.status_code == 200 or ret2.status_code == 200:
         return jsonify(),200
      
       
@@ -359,4 +364,4 @@ def getDate ():
 
 if __name__ == '__main__':
     app.debug=True
-    app.run(host = ip, port = portUser)
+    app.run(host = ipUser, port = portUser)

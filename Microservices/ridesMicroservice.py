@@ -33,12 +33,12 @@ for line in file:
 
 
 #ip = "172.31.82.178"
-ip = "127.0.0.1"
+ipUser = "127.0.0.1"
+ipRide = "127.0.0.1"
 portUser = "8080"
 portRide = "8000"
-addrrUser = ip+':'+portUser
-addrrRide = ip+':'+portRide
-
+addrrUser = ipUser+':'+portUser
+addrrRide = ipRide+':'+portRide
 
 
 
@@ -283,6 +283,26 @@ def DeleteRides(rideId):
 
 
 
+#helper Api
+# 2.1 List all Rides
+@app.route("/api/v1/rides/all",methods = ["GET"])
+def listAllRides():
+    data = {
+       "table" : "rideDB",
+       "columns" : ["rideId","source","destination","timestamp","createdby","users"],
+       "where" : []
+           }
+    print("FInd alllll")
+    ret = requests.post("http://"+addrrRide+"/api/v1/db/read",json = data)
+    if ret.status_code == 204:
+        return jsonify({"Error":"Bad request. No data present."}),204
+    elif ret.status_code == 400:
+        return jsonify({"Error":"Bad request"}),405
+    elif ret.status_code == 200:
+        return json.loads(ret.text),200
+    else:
+        return jsonify(),400;
+
 # api9
 '''
 input {
@@ -307,6 +327,7 @@ def ReadFromDB():
     elif collection == "rideDB":
         query_result = rideDB.find(query)
     else:
+        print("Wrong table");
         return jsonify({}),400
     ### check if NULL is returnned
     #print(query_result[0])
@@ -414,4 +435,4 @@ def getDate ():
 
 if __name__ == '__main__':
     app.debug=True
-    app.run(host = ip, port = portRide)
+    app.run(host = ipRide, port = portRide)
