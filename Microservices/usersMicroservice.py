@@ -32,10 +32,10 @@ for line in file:
 
 
 #ip = "172.31.82.178"
-ipUser = "127.0.0.1"
-ipRide = "127.0.0.1"
-portUser = "8080"
-portRide = "8000"
+ipUser = "127.0.0.1" #  The user ip
+ipRide = "127.0.0.1" # The ip the aws system (the thing u put in postman)
+portUser = "8080" # Dont change
+portRide = "8000" # Dont Change
 addrrUser = ipUser+':'+portUser
 addrrRide = ipRide+':'+portRide
 
