@@ -15,7 +15,7 @@ import json
 import requests
 import csv
 
-myclient = pymongo.MongoClient("mongodb://localhost:27017/")
+myclient = pymongo.MongoClient("mongodb://52.54.202.249:27017/")
 mydb = myclient["mydatabase"]
 #userDB = mydb["users"]
 rideDB = mydb["rides"]
@@ -33,8 +33,8 @@ for line in file:
 
 
 #ip = "172.31.82.178"
-ipUser = "127.0.0.1" # The ip the aws system (the thing u put in postman)
-ipRide = "127.0.0.1" # The ride ip
+ipUser = "52.54.202.249" # The ip the aws system (the thing u put in postman)
+ipRide = "52.54.202.249" # The ride ip
 portUser = "8080" # Dont change 
 portRide = "8000" # Dont change
 addrrUser = ipUser+':'+portUser
@@ -435,4 +435,4 @@ def getDate ():
 
 if __name__ == '__main__':
     app.debug=True
-    app.run(host = ipRide, port = portRide)
+    app.run(host = "0.0.0.0", port = 8000)
