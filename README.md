@@ -11,3 +11,7 @@
   * Search by rideID wrok
   * Join rides work (Change IP to public)
   * Delete data Work
+* USERS
+ * Add user works
+ * Fix delete
+ * Add ride purge for the user purge
