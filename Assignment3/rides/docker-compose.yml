@@ -1,0 +1,10 @@
+version: '3'
+services:
+    web:
+      build: .
+      command: python3 ride.py
+      image: rides:latest
+      ports:
+        - "80:80"
+      volumes:
+        - .:/todo
