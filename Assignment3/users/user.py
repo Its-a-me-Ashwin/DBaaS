@@ -29,11 +29,16 @@ RequestCount = 0
 
 
 ipUser = "0.0.0.0" #  The user ip
-ipRide = "54.85.14.67" Load Balancer IP
+ipRide = "54.85.14.67" #Load Balancer IP
 portUser = "80" # Dont change
 portRide = "80" # Dont Change
 addrrUser = ipUser+':'+portUser
 addrrRide = ipRide+':'+portRide
+
+# Test Api
+@app.route("/")
+def Test():
+    return "Access to Users instance working"
 
 # api 1
 '''

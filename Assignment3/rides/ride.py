@@ -36,6 +36,10 @@ portRide = "80" # Dont change
 addrrUser = ipUser+':'+portUser
 addrrRide = ipRide+':'+portRide
 
+# Test Api
+@app.route("/")
+def Test():
+    return "Access to Rides instance working"
 
 
 # 2.3 Clear DB  RIDES
