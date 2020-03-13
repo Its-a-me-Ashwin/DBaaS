@@ -7,7 +7,7 @@ import json
 import requests
 import csv
 
-myclient = pymongo.MongoClient("mongodb://52.54.202.249:27017/")
+myclient = pymongo.MongoClient("mongodb://172.31.35.178:27017/")
 mydb = myclient["mydatabase"]
 rideDB = mydb["rides"]
 
@@ -29,7 +29,7 @@ RequestCount = 0
 RidesCreated = 0
 
 
-ipUser = "0.0.0.0" # The ip the aws system (the thing u put in postman)
+ipUser = "54.85.14.67" # Load Balancer IP
 ipRide = "0.0.0.0" # The ride ip
 portUser = "80" # Dont change 
 portRide = "80" # Dont change
