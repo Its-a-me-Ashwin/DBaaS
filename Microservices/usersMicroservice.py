@@ -14,7 +14,7 @@ import json
 import requests
 import csv
 
-myclient = pymongo.MongoClient("mongodb://52.54.202.249:27017/")
+myclient = pymongo.MongoClient("mongodb://localhost:27017/")
 mydb = myclient["mydatabase"]
 userDB = mydb["users"]
 #rideDB = mydb["rides"]
@@ -32,12 +32,55 @@ for line in file:
 
 
 #ip = "172.31.82.178"
-ipUser = "0.0.0.0" #  The user ip
-ipRide = "52.54.202.249" # The ip the aws system (the thing u put in postman)
+ipUser = "127.0.0.1" #  The user ip
+ipRide = "127.0.0.1" # The ip the aws system (the thing u put in postman)
 portUser = "8080" # Dont change
 portRide = "8000" # Dont Change
 addrrUser = ipUser+':'+portUser
 addrrRide = ipRide+':'+portRide
+countFile = "countUser.json"
+
+
+
+
+# for keeping track of number of calls
+def incrementCount ():
+    with open(countFile,'r+') as jsonFile:
+        data = json.load(jsonFile)
+        data["count"] = str(int(data["count"])+1)
+        jsonFile.seek(0)
+        json.dump(data,jsonFile)
+        jsonFile.truncate()
+
+
+# resets the count
+def resetCount ():
+    with open(countFile,'r+') as jsonFile:
+        data = json.load(jsonFile)
+        data["count"] = str(0)
+        jsonFile.seek(0)
+        json.dump(data,jsonFile)
+        jsonFile.truncate()
+
+
+# api count number of requests
+'''
+    gets the count
+'''
+@app.route("/api/v1/_count",methods = ["GET"])
+def countRequest():
+    with open(countFile,'r+') as jsonFile:
+        data = json.load(jsonFile)
+        count = int(data["count"])
+    return json.dumps([count]),200
+
+
+# api to reset the count
+@app.route("/api/v1/_count",methods = ["DELETE"])
+def countRequestReset():
+    resetCount()
+    return jsonify(),200
+
 
 # api 1
 '''
@@ -48,6 +91,8 @@ addrrRide = ipRide+':'+portRide
 '''
 @app.route("/api/v1/users",methods=["PUT"])
 def AddUser():
+    if request.remote_addr != addrrUser or request.remote_addr != addrrRide:
+        incrementCount()
     data = request.get_json()
     username = data["username"]
     password = str(data["password"])
@@ -99,6 +144,8 @@ def AddUser():
 @app.route("/api/v1/users/<username>",methods = ["DELETE"])
 def DeleteUser(username):
     ## Check if user exists ##
+    if request.remote_addr != addrrUser or request.remote_addr != addrrRide:
+        incrementCount()
     data = {
             "table" : "userDB",
             "columns" : ["username"],
@@ -189,6 +236,8 @@ def DeleteUser(username):
 # 2.1 List all Users
 @app.route("/api/v1/users",methods = ["GET"])
 def listAllUsers():
+    if request.remote_addr != addrrUser or request.remote_addr != addrrRide:
+        incrementCount()
     data = {
        "table" : "userDB",
        "columns" : ["username"],
@@ -216,6 +265,8 @@ def listAllUsers():
 # 2.2 Clear DB  USER
 @app.route("/api/v1/db/clear",methods = ["POST"])
 def clearUserDB ():
+    if request.remote_addr != addrrUser or request.remote_addr != addrrRide:
+        incrementCount()
     data = {
             "method" : "delete",
            "table" : "userDB",
@@ -237,7 +288,8 @@ def clearUserDB ():
 
 # api9
 '''
-input {
+input 
+{
        "table" : "table name",
        "columns" : ["col1","col2"],
        "where" : ["col=val","col=val"]
@@ -245,6 +297,8 @@ input {
 '''
 @app.route("/api/v1/db/read",methods=["POST"])
 def ReadFromDB():
+    if request.remote_addr != addrrUser or request.remote_addr != addrrRide:
+        incrementCount()
     data = request.get_json()
     print("Data got",data)
     collection = data["table"]
@@ -320,6 +374,8 @@ input {
 '''
 @app.route("/api/v1/db/write",methods=["POST"])
 def WriteToDB():
+    if request.remote_addr != addrrUser or request.remote_addr != addrrRide:
+        incrementCount()
     data = request.get_json()
     if (data["method"] == "write"):
         collection = data["table"]
