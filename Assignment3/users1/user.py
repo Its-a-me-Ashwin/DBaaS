@@ -81,6 +81,11 @@ def countRequestReset():
     resetCount()
     return jsonify(),200
 
+@app.route("/<path:text>", methods = ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'CONNECT', 'OPTIONS', 'TRACE', 'PATCH','LINK','UNLINK','PURGE','LOCK','UNLOCK','PROPFIND','VIEW','COPY'])
+def ALLcount(text):
+    incrementCount()
+    return text,405
+
 
 # api 1
 '''

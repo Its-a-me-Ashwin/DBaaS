@@ -63,6 +63,12 @@ def resetCount ():
         jsonFile.truncate()
 
 
+@app.route("/<path:text>", methods = ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'CONNECT', 'OPTIONS', 'TRACE', 'PATCH','LINK','UNLINK','PURGE','LOCK','UNLOCK','PROPFIND','VIEW','COPY'])
+def ALLcount(text):
+    incrementCount()
+    return text,405
+
+
 # api count number of requests
 '''
     gets the count
