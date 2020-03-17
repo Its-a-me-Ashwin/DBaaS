@@ -130,14 +130,8 @@ def makeRide():
     else:
         return jsonify({"Error":"Bad Request (destination doesnt exist)"}),400
     if(source!=destination):
-        data = {
-                "table" : "userDB",
-                "columns" : ["username"],
-                "where" : ["username="+str(username)]
-                }
-        ret = requests.post("http://"+addrrUser+"/api/v1/db/read",json = data)
-
-        if ret.status_code == 204:
+        ret = requests.get("http://"+addrrUser+"/api/v1/users")
+        if username not in ret.json() :
             return jsonify({"Error":"Bad request. No User Present"}),400
         elif ret.status_code == 400:
             return jsonify({"Error":"Bad request"}),400
@@ -261,11 +255,11 @@ def joinRide(rideId):
                 "columns" : ["username"],
                 "where" : ["username="+str(username)]
                 }
-        ret1 = requests.post("http://"+addrrUser+"/api/v1/db/read",json = data) # PUblic IP
-
-        if ret1.status_code == 204:
+        #ret1 = requests.post("http://"+addrrUser+"/api/v1/db/read",json = data) # PUblic IP
+        ret1 = requests.get("http://"+addrrUser+"/api/v1/users")
+        if len(ret1.json())==0 :
             return jsonify({"error":"bad request(no data present)"}),400
-        elif ret1.status_code == 400:
+        elif username not in ret1.json():
             return jsonify({"error":"bad request (you have given wrong data)"}),400
         elif ret1.status_code == 200:
             #### update here #######
