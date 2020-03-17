@@ -1,0 +1,10 @@
+version: '3'
+services:
+    web:
+      build: .
+      command: python3 user.py
+      image: users:latest
+      ports:
+        - "80:80"
+      volumes:
+        - .:/todo
