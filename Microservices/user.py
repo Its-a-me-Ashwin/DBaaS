@@ -14,7 +14,11 @@ import json
 import requests
 import csv
 
+<<<<<<< HEAD:Microservices/user.py
 myclient = pymongo.MongoClient("mongodb://172.31.42.29:27017/")
+=======
+myclient = pymongo.MongoClient("mongodb://localhost:27017/")
+>>>>>>> 0c2de7bfb61b08cb8e1e9cc1c983cea541dcc30b:Microservices/usersMicroservice.py
 mydb = myclient["mydatabase"]
 userDB = mydb["users"]
 #rideDB = mydb["rides"]
@@ -32,10 +36,17 @@ for line in file:
 
 
 #ip = "172.31.82.178"
+<<<<<<< HEAD:Microservices/user.py
 ipUser = "0.0.0.0" #  The user ip
 ipRide = "54.85.14.67" #Load Balancer IP
 portUser = "80" # Dont change
 portRide = "80" # Dont Change
+=======
+ipUser = "127.0.0.1" #  The user ip
+ipRide = "127.0.0.1" # The ip the aws system (the thing u put in postman)
+portUser = "8080" # Dont change
+portRide = "8000" # Dont Change
+>>>>>>> 0c2de7bfb61b08cb8e1e9cc1c983cea541dcc30b:Microservices/usersMicroservice.py
 addrrUser = ipUser+':'+portUser
 addrrRide = ipRide+':'+portRide
 countFile = "countUser.json"
