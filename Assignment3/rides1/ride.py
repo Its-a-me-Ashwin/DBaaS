@@ -17,7 +17,7 @@ import csv
 
 myclient = pymongo.MongoClient("mongodb://172.31.35.178:27017/")
 mydb = myclient["mydatabase"]
-#userDB = mydb["users"]
+#userDB = mydb["users"] # only when both run on same machine
 rideDB = mydb["rides"]
 #import mysql.connector
 
