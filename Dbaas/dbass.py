@@ -18,8 +18,8 @@ mydb = myclient["mydatabase"]
 
 # set up collections (tables)
 #set up the nmes of the collections
-userDB = mydb["userDB"]
-rideDB = mydb["rideDB"]
+userDB = mydb["userDB"] # can be removed 
+rideDB = mydb["rideDB"] # can be removed
 
 
 app = Flask(__name__)
