@@ -1,11 +1,11 @@
-# Assignment 2
+# Project
 
 ## TO DO
-* Deploy the new code on AWS 
-* Test the api again on the aws system
-* Change IPS and deploy
+* Deploy the DBAAS on container
+* Start the next steps
 
 ## Testing
 
-* All APIs are tested and work on local host
+* Microservices work fine
+* DBAAS works well
 * Comuniation between the containers is working fine
