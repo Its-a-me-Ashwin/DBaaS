@@ -1,0 +1,5 @@
+ipython
+pika
+kazoo
+flask
+pymongo

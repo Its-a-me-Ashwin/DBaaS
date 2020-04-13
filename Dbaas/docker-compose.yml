@@ -1,0 +1,44 @@
+version: '3.1'
+
+services:
+  rmq:
+    image: rabbitmq:3.8.3-alpine
+
+  orchestrator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: sh -c "sleep 20 && python Orchestrator.py"
+    volumes:
+    - .:/code
+    links:
+    - rmq
+    depends_on:
+    - rmq
+    restart: on-failure
+
+  slave:
+    build:
+        context: .
+        dockerfile: Dockerfile
+    command: sh -c "sleep 15 && python Slave.py"
+    volumes:
+    - .:/code
+    links:
+    - rmq
+    depends_on:
+    - rmq
+    restart: on-failure
+
+  master:
+    build:
+        context: .
+        dockerfile: Dockerfile
+    command: sh -c "sleep 15 && python Master.py"
+    volumes:
+    - .:/code
+    links:
+    - rmq
+    depends_on:
+    - rmq
+    restart: on-failure
