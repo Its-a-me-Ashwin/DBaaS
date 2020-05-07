@@ -1,11 +1,11 @@
 # Project
 
 ## TO DO
-* Deploy the DBAAS on container
-* Start the next steps
+* Deploy on AWS
+* Test the APIs 
+* Change scale factor while deploying
 
 ## Testing
 
-* Microservices work fine
-* DBAAS works well
-* Comuniation between the containers is working fine
+* All original APIs work well on localhost
+* Scale up and Scale down feature works
