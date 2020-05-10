@@ -1,0 +1,31 @@
+version: '3.1'
+
+services:
+  zoo:
+    image: zookeeper
+    restart: on-failure
+    hostname: zoo
+    ports:
+      - 2181:2181
+    environment:
+      ZOO_MY_ID: 1
+      ZOO_SERVERS: server.1=0.0.0.0:2888:3888;2181
+
+  rmq:
+    image: rabbitmq:3.8.3-alpine
+
+  orchestrator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: sh -c "sh shO.sh"
+    volumes:
+    - .:/code
+    -  /var/run/docker.sock:/var/run/docker.sock
+    links:
+    - rmq
+    - zoo
+    depends_on:
+    - rmq
+    - zoo
+    restart: on-failure
