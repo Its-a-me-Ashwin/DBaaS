@@ -1,11 +1,10 @@
 # Project
 
 ## TO DO
-* Deploy on AWS
-* Test the APIs 
-* Change scale factor while deploying
+* Do slavee election (if possible)
 
 ## Testing
 
 * All original APIs work well on localhost
 * Scale up and Scale down feature works
+* All is done
