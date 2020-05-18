@@ -9,14 +9,6 @@
 * the slave.py file has all the code that perfroms the read action on the data base. It is connected to the orcastrator using many RabbitMQ connections.
 * this folder desnt contain the code used for the no DB apis. (They are imported from the other dirctories)
 
-
-### Assignment 3
-* 
-
-
-## TO DO
-* Do slavee election (if possible)
-
 ## Testing
 
 * All original APIs work well on localhost
