@@ -19,9 +19,10 @@
 
 ## Testing
 
-* All original APIs work well on localhost
-* Scale up and Scale down feature works
-* All is done
+* All original APIs work well on localhost and AWS.
+* Scale up and Scale down feature works.
+* Scale testing is complete.
+* All is done.
 
 ## Result:
 ![Automated Testing](screenshot.png)
